@@ -5,8 +5,9 @@ MAINTAINER Parchment Chef <chef@parchment.com>
 
 # Install wget and other packages
 RUN set -x \
+    && sed -i 's/http:\/\/archive.ubuntu.com\/ubuntu/mirror:\/\/mirrors.ubuntu.com\/mirrors.txt/' /etc/apt/sources.list \
     && apt-get update \
-    && apt-get install -y wget ca-certificates apt-transport-https \
+    && apt-get install -y ruby-tzinfo wget ca-certificates apt-transport-https \
     && rm -rf /var/lib/apt/lists/*
 
 # ARGs and ENVs for Chef Supermarket installation
@@ -21,7 +22,8 @@ RUN set -x \
     && wget --no-check-certificate -O supermarket_"$CHEF_SUPERMARKET_VERSION"-1_amd64.deb "$CHEF_SUPERMARKET_DOWNLOAD_URL" \
     && echo "$CHEF_SUPERMARKET_DOWNLOAD_SHA256 supermarket_$CHEF_SUPERMARKET_VERSION-1_amd64.deb" | sha256sum -c - \
     && dpkg -i supermarket_"$CHEF_SUPERMARKET_VERSION"-1_amd64.deb \
-    && rm supermarket_"$CHEF_SUPERMARKET_VERSION"-1_amd64.deb
+    && rm supermarket_"$CHEF_SUPERMARKET_VERSION"-1_amd64.deb \
+    && mkdir /etc/cron.hourly /etc/cron.weekly /etc/init /var/log/supermarket
 
 # Volumes
 VOLUME ["/etc/supermarket", "/var/opt/supermarket"]
